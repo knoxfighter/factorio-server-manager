@@ -22,7 +22,7 @@ script:
 
 stages:
   - test
-  - name: GitHub Release
+  - stage: GitHub Release
     if: branch = improve_travis
     script: echo "Deploying to GitHub releases ..."
     deploy:
