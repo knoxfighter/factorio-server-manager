@@ -23,6 +23,7 @@ script:
 jobs:
   include:
     - stage: deploy
+      os: linux
       go: 1.x
       language: minimal
       before_install:
