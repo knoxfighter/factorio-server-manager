@@ -9,10 +9,6 @@ go:
   - 1.12.x
   - 1.x
 
-jobs:
-  include:
-    - stage: test
-
 install:
   - go get github.com/apexskier/httpauth
   - go get github.com/go-ini/ini
@@ -22,26 +18,14 @@ install:
   - go get github.com/majormjr/rcon
 
 script:
- - go test -v ./...
+  - go test -v ./...
 
-#language: go
-#os:
-#  - linux
-#  - windows
-#
-#go:
-#  - 1.10.x
-#  - 1.11.x
-#  - 1.12.x
-#  - 1.x
-#
-#install:
-#  - go get github.com/apexskier/httpauth
-#  - go get github.com/go-ini/ini
-#  - go get github.com/gorilla/mux
-#  - go get github.com/hpcloud/tail
-#  - go get github.com/gorilla/websocket
-#  - go get github.com/majormjr/rcon
-#
-#script:
-#  - go test -v ./...
+stages:
+  - test
+  - name: GitHub Release
+    if: branch = master
+    script: echo "Deploying to GitHub releases ..."
+    deploy:
+      provider: releases
+      api_key: $GITHUB_OAUTH_TOKEN
+      skip_cleanup: true
