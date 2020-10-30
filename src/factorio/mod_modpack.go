@@ -1,7 +1,6 @@
 package factorio
 
 import (
-	"errors"
 	"github.com/mroote/factorio-server-manager/bootstrap"
 	"io"
 	"io/ioutil"
@@ -99,8 +98,9 @@ func (modPackMap *ModPackMap) CreateModPack(modPackName string) error {
 	modPackFolder := filepath.Join(config.FactorioModPackDir, modPackName)
 
 	if modPackMap.CheckModPackExists(modPackName) == true {
-		log.Printf("ModPack %s already existis", modPackName)
-		return errors.New("ModPack " + modPackName + " already exists, please choose a different name")
+		err = ModPackAlreadyExistsError(modPackName)
+		log.Println(err)
+		return err
 	}
 
 	sourceFileInfo, err := os.Stat(config.FactorioModsDir)
@@ -168,8 +168,9 @@ func (modPackMap *ModPackMap) CreateEmptyModPack(packName string) error {
 	modPackFolder := filepath.Join(config.FactorioModPackDir, packName)
 
 	if modPackMap.CheckModPackExists(packName) == true {
-		log.Printf("ModPack %s already existis", packName)
-		return errors.New("ModPack " + packName + " already exists, please choose a different name")
+		err = ModPackAlreadyExistsError(packName)
+		log.Println(err)
+		return err
 	}
 
 	// Create the modPack-folder

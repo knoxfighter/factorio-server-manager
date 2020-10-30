@@ -1,7 +1,6 @@
 package factorio
 
 import (
-	"errors"
 	"fmt"
 	"github.com/mroote/factorio-server-manager/bootstrap"
 	"log"
@@ -51,12 +50,16 @@ func FindSave(name string) (*Save, error) {
 		}
 	}
 
-	return nil, errors.New("save not found")
+	err = SaveNotFoundError(name)
+	log.Println(err)
+	return nil, err
 }
 
 func (s *Save) Remove() error {
 	if s.Name == "" {
-		return errors.New("save name cannot be blank")
+		err := SaveNameInvalid
+		log.Println(err)
+		return err
 	}
 	config := bootstrap.GetConfig()
 	return os.Remove(filepath.Join(config.FactorioSavesDir, s.Name))

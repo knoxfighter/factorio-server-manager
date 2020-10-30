@@ -2,8 +2,8 @@ package factorio
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -32,28 +32,30 @@ type ModPortalStruct struct {
 func ModPortalList() (interface{}, error, int) {
 	req, err := http.NewRequest(http.MethodGet, "https://mods.factorio.com/api/mods?page_size=max", nil)
 	if err != nil {
-		return "error", err, http.StatusInternalServerError
+		return nil, err, http.StatusInternalServerError
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "error", err, http.StatusInternalServerError
+		return nil, err, http.StatusInternalServerError
 	}
 	defer resp.Body.Close()
 
 	text, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "error", err, http.StatusInternalServerError
+		return nil, err, http.StatusInternalServerError
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(string(text)), resp.StatusCode
+		err = ModPortalError(string(text))
+		log.Println(err)
+		return nil, err, resp.StatusCode
 	}
 
 	var jsonVal interface{}
 	err = json.Unmarshal(text, &jsonVal)
 	if err != nil {
-		return "error", err, http.StatusInternalServerError
+		return nil, err, http.StatusInternalServerError
 	}
 
 	return jsonVal, nil, resp.StatusCode
@@ -85,7 +87,9 @@ func ModPortalModDetails(modId string) (ModPortalStruct, error, int) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return ModPortalStruct{}, errors.New(string(text)), resp.StatusCode
+		err = ModPortalError(string(text))
+		log.Println(err)
+		return ModPortalStruct{}, err, resp.StatusCode
 	}
 
 	server := GetFactorioServer()
@@ -126,7 +130,9 @@ func FactorioLogin(username string, password string) (error, int) {
 	bodyString := string(bodyBytes)
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New(bodyString), resp.StatusCode
+		err = ModPortalError(bodyString)
+		log.Println(err)
+		return err, resp.StatusCode
 	}
 
 	var successResponse []string

@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"github.com/mroote/factorio-server-manager/bootstrap"
 	"io/ioutil"
 	"log"
@@ -91,8 +90,9 @@ func ModStartUp() {
 			modPackDir := filepath.Join(config.FactorioModPackDir, modPackName)
 
 			if _, err := os.Stat(modPackDir); !os.IsNotExist(err) {
-				log.Printf("modPack already exists")
-				return errors.New("modPack already exists")
+				err = ModPackAlreadyExistsError(modPackDir)
+				log.Println(err)
+				return err
 			}
 
 			err = os.Mkdir(modPackDir, factorioDirPerm)

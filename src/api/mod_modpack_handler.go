@@ -2,7 +2,6 @@ package api
 
 import (
 	"archive/zip"
-	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/mroote/factorio-server-manager/bootstrap"
@@ -17,10 +16,11 @@ import (
 func CheckModPackExists(modPackMap factorio.ModPackMap, modPackName string, w http.ResponseWriter, resp interface{}) error {
 	exists := modPackMap.CheckModPackExists(modPackName)
 	if !exists {
-		resp = fmt.Sprintf("requested modPack {%s} does not exist", modPackName)
-		log.Println(resp)
+		err := factorio.ModPackDoesNotExistError(modPackName)
+		resp = err.Error()
+		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
-		return errors.New("requested modPack does not exist")
+		return err
 	}
 	return nil
 }

@@ -2,7 +2,6 @@ package factorio
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/mroote/factorio-server-manager/bootstrap"
 	"io/ioutil"
 	"log"
@@ -57,7 +56,9 @@ func (credentials *Credentials) Load() (bool, error) {
 		return true, nil
 	} else {
 		credentials.Del()
-		return false, errors.New("incredients incomplete")
+		err = CredentialsIncomplete
+		log.Println(err)
+		return false, err
 	}
 }
 

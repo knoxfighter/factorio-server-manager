@@ -3,7 +3,6 @@ package factorio
 import (
 	"archive/zip"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 )
@@ -47,7 +46,7 @@ func OpenArchiveFile(path string, name string) (r io.ReadCloser, err error) {
 	}
 
 	archive.Close()
-	return nil, errors.New("file not found")
+	return nil, SaveNotFoundError(name)
 }
 
 type SaveHeader struct {

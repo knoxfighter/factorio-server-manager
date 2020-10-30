@@ -3,7 +3,6 @@ package factorio
 import (
 	"archive/zip"
 	"encoding/json"
-	"errors"
 	"github.com/mroote/factorio-server-manager/lockfile"
 	"io"
 	"io/ioutil"
@@ -62,7 +61,7 @@ func (modInfoList *ModInfoList) listInstalledMods() error {
 
 			zipFile, err := zip.OpenReader(path)
 			if err != nil {
-				log.Fatalln(err)
+				log.Println(err)
 				return err
 			}
 			defer zipFile.Close()
@@ -70,7 +69,8 @@ func (modInfoList *ModInfoList) listInstalledMods() error {
 			var modInfo ModInfo
 			err = modInfo.getModInfo(&zipFile.Reader)
 			if err != nil {
-				log.Fatalf("Error in getModInfo: %s", err)
+				log.Printf("Error in getModInfo: %s", err)
+				return err
 			}
 
 			modInfo.FileName = info.Name()
@@ -159,8 +159,9 @@ func (modInfoList *ModInfoList) deleteMod(modName string) error {
 		}
 	}
 
-	log.Printf("the mod-file for mod %s doesn't exist!", modName)
-	return errors.New("the mod-file for mod " + modName + " doesn't exist!")
+	err = ModInfoModNotFoundError(modName)
+	log.Println(err)
+	return err
 }
 
 func (modInfo *ModInfo) getModInfo(reader *zip.Reader) error {
@@ -170,24 +171,24 @@ func (modInfo *ModInfo) getModInfo(reader *zip.Reader) error {
 			rc, err := singleFile.Open()
 
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error opening info.json: %s", err)
 				return err
 			}
 
 			byteArray, err := ioutil.ReadAll(rc)
 			if err != nil {
-				log.Fatal(err)
+				log.Printf("Error reading info.json: %s", err)
 				return err
 			}
 			err = rc.Close()
 			if err != nil {
-				log.Printf("Error closing singleFile: %s", err)
+				log.Printf("Error closing info.json: %s", err)
 				return err
 			}
 
 			err = json.Unmarshal(byteArray, modInfo)
 			if err != nil {
-				log.Fatalln(err)
+				log.Printf("Error unmarshalling info.json: %s", err)
 				return err
 			}
 
@@ -195,7 +196,9 @@ func (modInfo *ModInfo) getModInfo(reader *zip.Reader) error {
 		}
 	}
 
-	return errors.New("info.json not found in zip-file")
+	err := ModInfoInfoJsonNotFoundError
+	log.Println(err)
+	return err
 }
 
 func (modInfoList *ModInfoList) createMod(modName string, fileName string, modFile io.Reader) error {

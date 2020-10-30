@@ -2,7 +2,6 @@ package factorio
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -154,7 +153,9 @@ func (modSimpleList *ModSimpleList) ToggleMod(modName string) (error, bool) {
 	}
 
 	if !found {
-		return errors.New("mod is not installed"), newEnabled
+		err = ModNotFoundError(modName)
+		log.Println(err)
+		return err, newEnabled
 	}
 
 	err = modSimpleList.saveModInfoJson()

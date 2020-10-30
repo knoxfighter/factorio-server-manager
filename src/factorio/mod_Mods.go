@@ -3,8 +3,6 @@ package factorio
 import (
 	"archive/zip"
 	"bytes"
-	"errors"
-	"fmt"
 	"github.com/mroote/factorio-server-manager/lockfile"
 	"io"
 	"io/ioutil"
@@ -139,8 +137,9 @@ func (mods *Mods) DownloadMod(url string, filename string, modId string) error {
 		return err
 	}
 	if status == false {
-		log.Printf("error: credentials are invalid")
-		return errors.New("error: credentials are invalid")
+		err = FactorioCredentialsInvalid
+		log.Println(err)
+		return err
 	}
 
 	//download the mod from the mod portal api
@@ -157,9 +156,9 @@ func (mods *Mods) DownloadMod(url string, filename string, modId string) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		log.Printf("StatusCode: %d", response.StatusCode)
-
-		return errors.New("Statuscode not 200: " + fmt.Sprint(response.StatusCode))
+		err = ModPortalError(response.StatusCode)
+		log.Println(err)
+		return err
 	}
 
 	err = mods.createMod(modId, filename, response.Body)
@@ -170,7 +169,7 @@ func (mods *Mods) DownloadMod(url string, filename string, modId string) error {
 
 	log.Printf("completed copying the response.Body")
 
-	//done everything is made inside the createMod
+	//done everything is made inside createMod
 
 	return nil
 }
@@ -179,8 +178,9 @@ func (mods *Mods) UploadMod(file multipart.File, header *multipart.FileHeader) e
 	var err error
 
 	if filepath.Ext(header.Filename) != ".zip" {
-		log.Print("The uploaded file wasn't a zip-file")
-		return errors.New("the uploaded file wasn't a zip-file")
+		err = ModUploadedModInvalid
+		log.Println(err)
+		return err
 	}
 
 	fileByteArray, err := ioutil.ReadAll(file)
