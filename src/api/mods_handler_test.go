@@ -46,6 +46,7 @@ func TestMain(m *testing.M) {
 	}
 	if !load {
 		// no credentials found, login...
+		log.Println(os.Getenv("factorio_username"))
 		err, _ = factorio.FactorioLogin(os.Getenv("factorio_username"), os.Getenv("factorio_password"))
 		if err != nil {
 			log.Printf("Error logging in into factorio: %s", err)
