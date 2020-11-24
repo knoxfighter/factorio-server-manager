@@ -1,5 +1,9 @@
 on: 
   push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*.*'
   pull_request:
 env:
   factorio_password: ${{ secrets.FACTORIO_PASSWORD }}
